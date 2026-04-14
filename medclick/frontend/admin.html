@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>МедКлик - Администратор</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🏥 Панель администратора</h2>
+        
+        <h3>📦 Расходные материалы</h3>
+        <div id="materials"></div>
+        
+        <h3>➕ Списание материала</h3>
+        <select id="materialSelect"></select>
+        <input type="number" id="appointmentId" placeholder="ID записи">
+        <input type="number" id="quantity" placeholder="Количество">
+        <button onclick="writeOff()">Списать</button>
+        
+        <h3>📅 Все записи</h3>
+        <div id="allAppointments"></div>
+        
+        <h3>🆕 Создать расписание</h3>
+        <select id="doctorSelect"></select>
+        <input type="datetime-local" id="slotTime">
+        <button onclick="addSchedule()">Добавить слот</button>
+        
+        <br><br>
+        <button onclick="logout()">Выйти</button>
+    </div>
+    <script>
+        const API = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        const role = localStorage.getItem('role');
+        
+        // if (!token || role !== 'admin') window.location.href = 'index.html';
+
+        async function loadMaterials() {
+            const res = await fetch(`${API}/materials`);
+            const mats = await res.json();
+            const div = document.getElementById('materials');
+            const select = document.getElementById('materialSelect');
+            div.innerHTML = mats.map(m => `
+                <div class="card">
+                    ${m.name} | Остаток: ${m.quantity} ${m.unit} | Порог: ${m.min_threshold}
+                </div>
+            `).join('');
+            select.innerHTML = mats.map(m => `<option value="${m.id}">${m.name} (остаток: ${m.quantity})</option>`).join('');
+        }
+
+        async function writeOff() {
+            const material_id = document.getElementById('materialSelect').value;
+            const appointment_id = document.getElementById('appointmentId').value;
+            const quantity = document.getElementById('quantity').value;
+            if (!appointment_id || !quantity) {
+                alert('Заполните все поля');
+                return;
+            }
+            const res = await fetch(`${API}/materials/write-off`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ material_id, appointment_id, quantity: parseInt(quantity) })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('✅ Материал списан');
+                loadMaterials();
+                loadAllAppointments();
+                document.getElementById('appointmentId').value = '';
+                document.getElementById('quantity').value = '';
+            } else {
+                alert('❌ ' + (data.error || 'Ошибка списания'));
+            }
+        }
+
+        async function loadAllAppointments() {
+            const res = await fetch(`${API}/appointments/all`);
+            const apps = await res.json();
+            const div = document.getElementById('allAppointments');
+            if (apps.length === 0) {
+                div.innerHTML = '<p>Нет записей</p>';
+                return;
+            }
+            div.innerHTML = apps.map(a => `
+                <div class="card">
+                    🧑 Пациент: ${a.patient_name || 'ID ' + a.patient_id} | 
+                    🕒 ${new Date(a.slot_time).toLocaleString()} | 
+                    👨‍⚕️ ${a.doctor_name} | 
+                    Статус: ${a.status}
+                    ${a.status === 'booked' ? `<button onclick="confirmVisit(${a.id})">✅ Подтвердить явку</button>` : ''}
+                    ${a.status === 'booked' ? `<button onclick="markNoShow(${a.id})">❌ Отметить неявку</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function confirmVisit(appointment_id) {
+            const res = await fetch(`${API}/appointments/${appointment_id}/confirm`, { method: 'PUT' });
+            if (res.ok) {
+                alert('✅ Явка подтверждена');
+                loadAllAppointments();
+            }
+        }
+
+        async function markNoShow(appointment_id) {
+            const res = await fetch(`${API}/appointments/${appointment_id}/noshow`, { method: 'PUT' });
+            if (res.ok) {
+                alert('❌ Неявка отмечена, слот освобождён');
+                loadAllAppointments();
+            }
+        }
+
+        async function loadDoctors() {
+            const res = await fetch(`${API}/doctors`);
+            const docs = await res.json();
+            const select = document.getElementById('doctorSelect');
+            select.innerHTML = docs.map(d => `<option value="${d.id}">${d.full_name} (${d.specialty})</option>`).join('');
+        }
+
+        async function addSchedule() {
+            const doctor_id = document.getElementById('doctorSelect').value;
+            const slot_time = document.getElementById('slotTime').value;
+            if (!doctor_id || !slot_time) {
+                alert('Заполните все поля');
+                return;
+            }
+            const res = await fetch(`${API}/schedule/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ doctor_id, slot_time })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('✅ Слот добавлен');
+                document.getElementById('slotTime').value = '';
+            } else {
+                alert('❌ ' + (data.error || 'Ошибка'));
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadMaterials();
+        loadAllAppointments();
+        loadDoctors();
+    </script>
+</body>
+</html>

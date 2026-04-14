@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>МедКлик - Пациент</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🩺 Запись на приём</h2>
+        <div id="slots"></div>
+        
+        <h2>📋 Мои записи</h2>
+        <div id="myAppointments"></div>
+        
+        <button onclick="logout()">Выйти</button>
+    </div>
+    <script>
+        const API = 'http://localhost:5000/api';
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        const role = localStorage.getItem('role');
+        
+        if (!token) window.location.href = 'index.html';
+        if (role === 'admin') window.location.href = 'admin.html';
+
+        async function loadSlots() {
+            const res = await fetch(`${API}/schedule/available`);
+            const slots = await res.json();
+            const div = document.getElementById('slots');
+            if (slots.length === 0) {
+                div.innerHTML = '<p>Нет свободных слотов</p>';
+                return;
+            }
+            div.innerHTML = slots.map(s => `
+                <div class="card">
+                    🕒 ${new Date(s.slot_time).toLocaleString()} | 👨‍⚕️ ${s.doctor_name}
+                    <button onclick="book(${s.id})">Записаться</button>
+                </div>
+            `).join('');
+        }
+
+        async function book(schedule_id) {
+            const res = await fetch(`${API}/appointments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ patient_id: userId, schedule_id })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert('✅ Запись оформлена');
+                loadSlots();
+                loadMyAppointments();
+            } else {
+                alert('❌ ' + (data.error || 'Ошибка записи'));
+            }
+        }
+
+        async function loadMyAppointments() {
+            const res = await fetch(`${API}/appointments/my/${userId}`);
+            const apps = await res.json();
+            const div = document.getElementById('myAppointments');
+            if (apps.length === 0) {
+                div.innerHTML = '<p>У вас нет записей</p>';
+                return;
+            }
+            div.innerHTML = apps.map(a => `
+                <div class="card">
+                    🕒 ${new Date(a.slot_time).toLocaleString()} | ${a.doctor_name} | 
+                    Статус: ${a.status}
+                    ${a.status === 'booked' ? `<button onclick="cancelAppointment(${a.id})">Отменить</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        async function cancelAppointment(appointment_id) {
+            if (!confirm('Отменить запись?')) return;
+            const res = await fetch(`${API}/appointments/${appointment_id}/cancel`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (res.ok) {
+                alert('✅ Запись отменена');
+                loadSlots();
+                loadMyAppointments();
+            } else {
+                alert('❌ Ошибка отмены');
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        loadSlots();
+        loadMyAppointments();
+    </script>
+</body>
+</html>

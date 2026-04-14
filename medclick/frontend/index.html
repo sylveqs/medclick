@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>МедКлик - Вход</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>🏥 МедКлик</h2>
+        <form id="loginForm">
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="password" id="password" placeholder="Пароль" required>
+            <button type="submit">Войти</button>
+        </form>
+        <p>Нет аккаунта? <a href="#" onclick="showRegister()">Зарегистрироваться</a></p>
+        <div id="message"></div>
+    </div>
+    <script>
+        const API = 'http://localhost:5000/api';
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const res = await fetch(`${API}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('userId', data.user_id);
+                if (data.role === 'admin') window.location.href = 'admin.html';
+                else window.location.href = 'patient.html';
+            } else {
+                document.getElementById('message').innerText = 'Ошибка входа';
+            }
+        });
+        function showRegister() {
+            document.getElementById('loginForm').innerHTML = `
+                <input type="text" id="full_name" placeholder="ФИО" required>
+                <input type="email" id="email" placeholder="Email" required>
+                <input type="password" id="password" placeholder="Пароль" required>
+                <input type="tel" id="phone" placeholder="Телефон">
+                <button type="submit">Зарегистрироваться</button>
+            `;
+            document.getElementById('loginForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const full_name = document.getElementById('full_name').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const phone = document.getElementById('phone').value;
+                const res = await fetch(`${API}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name, email, password, role: 'patient', phone })
+                });
+                if (res.ok) alert('Регистрация успешна, войдите');
+                else alert('Ошибка');
+            };
+        }
+    </script>
+</body>
+</html>
