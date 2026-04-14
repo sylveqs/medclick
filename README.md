@@ -130,3 +130,13 @@ material_write_offs	Списание материалов
 
 ## 👨‍💻 Автор
 Учебная практика по разработке информационной системы
+
+<img width="1066" height="405" alt="Снимок экрана 2026-04-14 131438" src="https://github.com/user-attachments/assets/9af699d6-a120-4337-8749-2ffb8de116cb" />
+<img width="1071" height="609" alt="Снимок экрана 2026-04-14 132719" src="https://github.com/user-attachments/assets/e205abaa-f61a-4762-8ce7-39f459263aad" />
+<img width="951" height="491" alt="Снимок экрана 2026-04-14 132715" src="https://github.com/user-attachments/assets/329b437b-5770-45e4-80a5-eab5377a8213" />
+<img width="974" height="465" alt="Снимок экрана 2026-04-14 132709" src="https://github.com/user-attachments/assets/f85dc751-19c0-496a-bbe7-5177bac8a5b1" />
+<img width="539" height="228" alt="Снимок экрана 2026-04-14 132845" src="https://github.com/user-attachments/assets/82484d79-252a-4337-a4b3-bf687f50206e" />
+<img width="1061" height="936" alt="Снимок экрана 2026-04-14 132618" src="https://github.com/user-attachments/assets/d3eca33a-08b2-4346-b0e1-69c51278f7b5" />
+<img width="1242" height="526" alt="Снимок экрана 2026-04-14 131945" src="https://github.com/user-attachments/assets/7eca1c54-8e80-4aa1-a25c-e5c51a5b8f2e" />
+
+
