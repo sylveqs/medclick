@@ -31,11 +31,13 @@
 bash
 git clone https://github.com/ВАШ_USERNAME/medclick.git
 cd medclick
-2. Установить зависимости для бэкенда
+
+2. **Установить зависимости для бэкенда**
 bash
 cd backend
 npm install
-3. Настроить базу данных PostgreSQL
+
+3. **Настроить базу данных PostgreSQL**
 Создайте базу данных medclick
 
 Выполните скрипт создания таблиц (см. database.sql)
@@ -50,24 +52,27 @@ const pool = new Pool({
   password: '1111',
   port: 5432,
 });
-4. Запустить бэкенд
+
+4. **Запустить бэкенд**
 bash
 npm start
 Сервер запустится на порту 5000
 
-5. Открыть фронтенд
+5. **Открыть фронтенд**
 Откройте файл frontend/index.html в браузере
 
 ## 👥 Роли пользователей
 Роль	Email	Пароль	Возможности
+
 Администратор	admin@medclick.ru	admin123	Управление материалами, списание, подтверждение явок, добавление расписания
 Пациент	Зарегистрируйтесь сами	—	Запись на приём, отмена записи, просмотр своих записей
-📁 Структура проекта
+
+## 📁 Структура проекта
 text
-medclick/
-├── backend/
-│   ├── routes/
-│   │   ├── auth.js          # Регистрация/вход
+- medclick/
+- ├── backend/
+- │   ├── routes/
+- │   │   ├── auth.js          # Регистрация/вход
 │   │   ├── schedule.js      # Расписание
 │   │   ├── appointments.js  # Записи на приём
 │   │   └── materials.js     # Учёт материалов
@@ -112,15 +117,16 @@ material_write_offs	Списание материалов
 
 ##🔗 API Endpoints
 Метод	Endpoint	Описание
-POST	/api/auth/register	Регистрация
-POST	/api/auth/login	Вход
-GET	/api/schedule/available	Свободные слоты
-POST	/api/appointments	Запись на приём
-GET	/api/appointments/my/:id	Записи пациента
-GET	/api/appointments/all	Все записи (админ)
-PUT	/api/appointments/:id/cancel	Отмена записи
-PUT	/api/appointments/:id/confirm	Подтверждение явки
-GET	/api/materials	Список материалов
-POST	/api/materials/write-off	Списание материала
+- POST	/api/auth/register	Регистрация
+- POST	/api/auth/login	Вход
+- GET	/api/schedule/available	Свободные слоты
+- POST	/api/appointments	Запись на приём
+- GET	/api/appointments/my/:id	Записи пациента
+- GET	/api/appointments/all	Все записи (админ)
+- PUT	/api/appointments/:id/cancel	Отмена записи
+- PUT	/api/appointments/:id/confirm	Подтверждение явки
+- GET	/api/materials	Список материалов
+- POST	/api/materials/write-off	Списание материала
+
 ## 👨‍💻 Автор
 Учебная практика по разработке информационной системы
